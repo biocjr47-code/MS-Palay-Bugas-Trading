@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="236" height="40" viewBox="0 0 236 40" role="img" aria-label="MS Lami-ang Bugas">
+  <rect x="0" y="2" width="36" height="36" rx="10" fill="#1F5E36"/>
+  <g fill="#F6F3EA">
+    <ellipse cx="11.5" cy="21" rx="3.4" ry="8.2" transform="rotate(-16 11.5 21)"/>
+    <ellipse cx="18" cy="19" rx="3.4" ry="8.6"/>
+    <ellipse cx="24.5" cy="21" rx="3.4" ry="8.2" transform="rotate(16 24.5 21)"/>
+  </g>
+  <text x="46" y="18" font-family="Hanken Grotesk, Segoe UI, sans-serif" font-size="15" font-weight="700" fill="#1E2420" letter-spacing="-0.2">Lami-ang Bugas</text>
+  <text x="46" y="33" font-family="Hanken Grotesk, Segoe UI, sans-serif" font-size="10.5" font-weight="500" fill="#6E7368" letter-spacing="0.6">MS PALAY &amp; RICE TRADING</text>
+</svg>
