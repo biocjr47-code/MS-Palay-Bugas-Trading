@@ -117,7 +117,7 @@ create index if not exists sales_date_idx           on sales (date);
 create index if not exists labor_logs_date_idx      on labor_logs (date);
 create index if not exists expenses_date_idx        on expenses (date);
 
--- Who entered each record (the username of the person logged in).
+-- Who entered each record: filled in by the database from the login, so it can't be faked.
 alter table palay_purchases    add column if not exists created_by text;
 alter table milling_runs       add column if not exists created_by text;
 alter table sales              add column if not exists created_by text;
@@ -126,9 +126,24 @@ alter table labor_logs         add column if not exists created_by text;
 alter table expenses           add column if not exists created_by text;
 alter table owner_transactions add column if not exists created_by text;
 
--- Row Level Security: ON with no public policies, so the public anon key can read nothing.
--- The Streamlit server connects with the service_role key (kept in .streamlit/secrets.toml),
--- which bypasses RLS. Never put the service_role key in browser code.
+-- The logged-in person's role and username, from their login token.
+-- Both live in app_metadata, which only the server's secret key can change.
+create or replace function public.app_role() returns text
+language sql stable as $$ select coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') $$;
+create or replace function public.app_username() returns text
+language sql stable as $$ select auth.jwt() -> 'app_metadata' ->> 'username' $$;
+
+alter table palay_purchases    alter column created_by set default public.app_username();
+alter table milling_runs       alter column created_by set default public.app_username();
+alter table sales              alter column created_by set default public.app_username();
+alter table laborers           alter column created_by set default public.app_username();
+alter table labor_logs         alter column created_by set default public.app_username();
+alter table expenses           alter column created_by set default public.app_username();
+alter table owner_transactions alter column created_by set default public.app_username();
+
+-- Row Level Security: nobody without a login can read or change anything.
+-- Owners can do everything. Staff can read and add records, record payments on
+-- palay and sales, but cannot delete, edit other records, or touch owners' capital.
 alter table palay_purchases    enable row level security;
 alter table milling_runs       enable row level security;
 alter table sales              enable row level security;
@@ -136,3 +151,40 @@ alter table laborers           enable row level security;
 alter table labor_logs         enable row level security;
 alter table expenses           enable row level security;
 alter table owner_transactions enable row level security;
+
+do $$
+declare
+  t text;
+  p record;
+begin
+  -- start clean so re-running this file never duplicates policies
+  for p in select policyname, tablename from pg_policies where schemaname = 'public'
+           and tablename in ('palay_purchases','milling_runs','sales','laborers','labor_logs','expenses','owner_transactions')
+  loop
+    execute format('drop policy %I on public.%I', p.policyname, p.tablename);
+  end loop;
+
+  -- owners: full access everywhere
+  foreach t in array array['palay_purchases','milling_runs','sales','laborers','labor_logs','expenses','owner_transactions'] loop
+    execute format($f$create policy owner_all on public.%I for all to authenticated
+                      using (public.app_role() = 'owner') with check (public.app_role() = 'owner')$f$, t);
+  end loop;
+
+  -- staff: read and add the day-to-day records
+  foreach t in array array['palay_purchases','milling_runs','sales','laborers','labor_logs','expenses'] loop
+    execute format($f$create policy staff_read on public.%I for select to authenticated
+                      using (public.app_role() = 'staff')$f$, t);
+  end loop;
+  foreach t in array array['palay_purchases','milling_runs','sales','labor_logs','expenses'] loop
+    execute format($f$create policy staff_add on public.%I for insert to authenticated
+                      with check (public.app_role() = 'staff')$f$, t);
+  end loop;
+end $$;
+
+-- staff may record payments (farmer payments, collecting utang): only the amount_paid column
+create policy staff_pay on public.palay_purchases for update to authenticated
+  using (public.app_role() = 'staff') with check (public.app_role() = 'staff');
+create policy staff_pay on public.sales for update to authenticated
+  using (public.app_role() = 'staff') with check (public.app_role() = 'staff');
+revoke update on public.palay_purchases, public.sales from authenticated;
+grant  update (amount_paid) on public.palay_purchases, public.sales to authenticated;

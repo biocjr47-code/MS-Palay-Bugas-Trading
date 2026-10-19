@@ -1,4 +1,0 @@
-streamlit>=1.50
-supabase>=2.10
-pandas>=2.2
-altair>=5.4
