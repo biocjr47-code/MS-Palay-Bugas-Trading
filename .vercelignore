@@ -1,0 +1,6 @@
+# Vercel serves only the front page (index.html) and its assets.
+# The management system itself (Python/Streamlit) runs on Streamlit Community Cloud.
+/*
+!index.html
+!assets
+!vercel.json
