@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../lib/auth.jsx";
+import { PasswordInput } from "../components/ui.jsx";
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -30,10 +31,7 @@ export default function Login() {
               <label htmlFor="u">Username</label>
               <input id="u" autoComplete="username" autoCapitalize="none" value={username} onChange={(e) => setUsername(e.target.value)} />
             </div>
-            <div className="ms-field">
-              <label htmlFor="p">Password</label>
-              <input id="p" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-            </div>
+            <PasswordInput id="p" label="Password" autoComplete="current-password" value={password} onChange={setPassword} />
             {err && <div className="ms-alert bad" role="alert">{err}</div>}
             <button className="ms-btn primary wide" type="submit" disabled={busy}>{busy ? "Logging in…" : "Log in"}</button>
             <p className="ms-muted">For owners and staff. Forgot your password? Ask Marvie or Salome to set a new one.</p>

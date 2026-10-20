@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../lib/auth.jsx";
 import { useData } from "../lib/data.jsx";
 import { usersApi } from "../lib/supabase.js";
-import { Alert, Button, PageHeader, Radio, Section, Select, Table, Tabs, TextInput } from "../components/ui.jsx";
+import { Alert, Button, PageHeader, PasswordInput, Radio, Section, Select, Table, Tabs, TextInput } from "../components/ui.jsx";
 
 const ROLE = { owner: "Owner", staff: "Staff" };
 const lastLogin = (iso) => (iso ? new Date(iso).toLocaleString("en-US", {
@@ -63,7 +63,7 @@ function AddUser({ onCreate }) {
           </div>
           <div>
             <Radio label="Role" value={f.role} onChange={set("role")} options={[["owner", "Owner"], ["staff", "Staff"]]} />
-            <TextInput label="Password" type="password" value={f.password} onChange={set("password")} autoComplete="new-password" help="At least 8 characters." />
+            <PasswordInput label="Password" value={f.password} onChange={set("password")} help="At least 8 characters. Click Show to check it before saving." />
           </div>
         </div>
         <Button kind="primary" busy={busy} onClick={async () => {
@@ -93,7 +93,7 @@ function ManageUser({ users, me, act }) {
                 options={users.map((u) => [u.id, `${u.name} (${u.username}) · ${ROLE[u.role]}${u.active ? "" : " · turned off"}`])} />
         <Tabs tabs={["Set a new password", "Turn on / off", "Change role"]} active={tab} onChange={setTab} />
         {tab === "Set a new password" && <>
-          <TextInput label="New password" type="password" value={pw} onChange={setPw} autoComplete="new-password" />
+          <PasswordInput label="New password" value={pw} onChange={setPw} help="At least 8 characters." />
           <Button onClick={async () => { if (await act("password", { id: target.id, password: pw }, `New password saved for ${target.username}. Give it to them in person.`)) setPw(""); }}>
             Save new password</Button>
         </>}

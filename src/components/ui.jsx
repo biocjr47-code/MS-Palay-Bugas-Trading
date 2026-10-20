@@ -93,6 +93,29 @@ export function TextInput({ label, help, value, onChange, type = "text", placeho
   );
 }
 
+/** Password box with a Show / Hide button, so owners can check what they typed before saving. */
+export function PasswordInput({ label, help, value, onChange, autoComplete = "new-password", id: fixedId }) {
+  const autoId = useId();
+  const id = fixedId || autoId;
+  const [shown, setShown] = useState(false);
+  return (
+    <Field label={label} help={help} id={id}>
+      <div className="ms-password">
+        <input id={id} type={shown ? "text" : "password"} value={value} autoComplete={autoComplete}
+               autoCapitalize="none" autoCorrect="off" spellCheck={false} onChange={(e) => onChange(e.target.value)} />
+        <button type="button" aria-controls={id} aria-pressed={shown} onClick={() => setShown(!shown)}
+                aria-label={shown ? "Hide password" : "Show password"}>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6z" /><circle cx="10" cy="10" r="2.5" />
+            {shown && <path d="M3 17L17 3" />}
+          </svg>
+          {shown ? "Hide" : "Show"}
+        </button>
+      </div>
+    </Field>
+  );
+}
+
 export function NumberInput({ label, help, value, onChange, step = 1, min = 0, max, disabled }) {
   const id = useId();
   return (

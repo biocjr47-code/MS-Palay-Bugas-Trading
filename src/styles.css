@@ -99,6 +99,15 @@ code { font-size: .85em; background: var(--field); padding: 1px 5px; border-radi
 .ms-field input:focus, .ms-field select:focus { outline: none; border-color: var(--primary); background: var(--surface); box-shadow: 0 0 0 3px #1F5E3622; }
 .ms-field input:disabled { color: var(--mute); background: #EFEBE1; }
 .ms-field input::placeholder { color: #9A9C93; }
+.ms-password { position: relative; }
+.ms-password input { padding-right: 84px; }
+.ms-password button {
+  position: absolute; top: 4px; right: 4px; bottom: 4px; display: inline-flex; align-items: center; gap: 6px;
+  padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--body);
+  font-size: .85rem; font-weight: 600; cursor: pointer; transition: background-color .15s;
+}
+.ms-password button:hover { background: #E2DCCB; color: var(--ink); }
+.ms-password button svg { width: 17px; height: 17px; }
 .ms-radio > div { display: flex; flex-wrap: wrap; gap: 6px 18px; min-height: 42px; align-items: center; }
 .ms-radio label, .ms-check { display: inline-flex; align-items: center; gap: 8px; font-weight: 400; cursor: pointer; }
 input[type="radio"], input[type="checkbox"] { accent-color: var(--primary); width: 17px; height: 17px; }
